@@ -5,7 +5,7 @@ include 'win32ax.inc'
 section '.data' data readable writeable
         _cpu db 'CPU: ',0
         _ram db 'RAM: ',0
-        _cpuv dd ?
+        _cpuv db ?
         _ramv db ?
         _tmp dd 'ntel'
 
@@ -13,7 +13,7 @@ section '.data' data readable writeable
 
 start:
                                   ;EBX,EDX,ECX
-
+        push eax
         push ebx
         push ecx
         push edx
@@ -22,7 +22,10 @@ start:
         mov eax,0
         cpuid
 
-        mov [_cpuv],ecx
+        lea esi,[_cpuv]
+        mov [esi],ebx
+        mov [esi+4],edx
+        mov [esi+8],ecx
 
         invoke MessageBox,HWND_DESKTOP,_cpuv,_cpu,MB_OK
         ;invoke MessageBox,HWND_DESKTOP,_ramv,_ram,MB_OK
