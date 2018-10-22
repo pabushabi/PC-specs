@@ -1,15 +1,12 @@
-format PE GUI 4.0
-
+format PE console
 include 'win32ax.inc'
+entry start
 
 section '.data' data readable writeable
-        _cpu db 'CPU: ',0
-        _ram db 'RAM: ',0
         _cpuv db ?
-        _ramv db ?
-        _tmp dd 'ntel'
+        buff  dd 8*8
 
-.code
+section '.code' code readable executable
 
 start:
                                   ;EBX,EDX,ECX
@@ -18,8 +15,25 @@ start:
         push ecx
         push edx
 
-        ;cdq
+        invoke   GlobalMemoryStatusEx, buff        ; !!!
+
+        mov      eax,[buff+08h]
+        mov      edx,[buff+08h+4]
+        shrd     eax,edx,20
+        cinvoke  printf, <'RAM',10,'Total   : %d Mb',10,0>,eax
+
+        mov      eax,[buff+10h]
+        mov      edx,[buff+10h+4]
+        shrd     eax,edx,20
+        mov      edx,100
+        sub      edx,[buff+04h]
+        cinvoke  printf, <'Free    : %d Mb, %d%%',10,10,0>,eax,edx
+
         mov eax,0
+        mov ebx,0
+        mov ecx,0
+        mov edx,0
+
         cpuid
 
         lea esi,[_cpuv]
@@ -27,8 +41,10 @@ start:
         mov [esi+4],edx
         mov [esi+8],ecx
 
-        invoke MessageBox,HWND_DESKTOP,_cpuv,_cpu,MB_OK
-        ;invoke MessageBox,HWND_DESKTOP,_ramv,_ram,MB_OK
+        ;invoke MessageBox,HWND_DESKTOP,_cpuv,_cpu,MB_OK
+        cinvoke printf, <'Processor',10,'Manufacturer : %s',10,0>,_cpuv
+ 
+        cinvoke  scanf
 
         pop edx
         pop ecx
@@ -37,4 +53,14 @@ start:
 
         invoke ExitProcess,0
 
-.end start
+section '.idata' import data readable
+library kernel32, 'kernel32.dll',\
+        msvcrt, 'msvcrt.dll'
+ 
+import kernel32,\
+       GlobalMemoryStatusEx, 'GlobalMemoryStatusEx',\
+       ExitProcess, 'ExitProcess'
+ 
+import msvcrt,\
+       printf, 'printf',\
+        scanf, 'scanf'
