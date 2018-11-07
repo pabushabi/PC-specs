@@ -1,2 +1,4 @@
 # PC specs
-This is a small application for getting info about specs of the PC
+## FASM
+
+This is a small application written on fasm for getting info about specs of the PC
