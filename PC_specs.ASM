@@ -6,7 +6,7 @@ entry start
 section '.data' data readable writeable
         cpuv db ?
         buff dd 8*8
-        tpts:   db  '%s',0
+        tpts:   db  ''
         id: db  17 dup(0)
 
 section '.code' code readable executable
@@ -44,9 +44,7 @@ start:
         mov [esi+4],edx
         mov [esi+8],ecx
 
-        ;invoke MessageBox,HWND_DESKTOP,_cpuv,_cpu,MB_OK
         cinvoke printf, <'Processor',10,'Manufacturer : %s',10,0>,cpuv
-
 
         mov edi, 80000002h
 @@:     mov eax, edi
